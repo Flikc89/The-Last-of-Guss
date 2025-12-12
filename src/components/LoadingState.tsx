@@ -8,8 +8,8 @@ interface LoadingStateProps {
 
 export const LoadingState = ({ message = 'Загрузка...' }: LoadingStateProps) => {
   return (
-    <Box {...loadingContainerStyles}>
-      <Text {...loadingTextStyles}>{message}</Text>
+    <Box sx={loadingContainerStyles}>
+      <Text sx={loadingTextStyles}>{message}</Text>
     </Box>
   )
 }

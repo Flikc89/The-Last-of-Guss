@@ -1,9 +1,7 @@
 import type { SystemStyleObject } from '@chakra-ui/react'
 
-export const roundInfoContainerStyles: SystemStyleObject = {
-  spacing: 2,
-  align: 'center',
-}
+export const roundInfoContainerSpacing = 2
+export const roundInfoContainerAlign = 'center'
 
 export const roundInfoTitleStyles: SystemStyleObject = {
   fontSize: 'xl',
@@ -16,10 +14,8 @@ export const roundInfoTimeLeftStyles: SystemStyleObject = {
   color: 'brand.400',
 }
 
-export const roundInfoCompletedContainerStyles: SystemStyleObject = {
-  spacing: 2,
-  align: 'center',
-}
+export const roundInfoCompletedContainerSpacing = 2
+export const roundInfoCompletedContainerAlign = 'center'
 
 export const roundInfoScoreStyles: SystemStyleObject = {
   fontSize: 'lg',

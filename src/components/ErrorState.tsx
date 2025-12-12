@@ -8,8 +8,8 @@ interface ErrorStateProps {
 
 export const ErrorState = ({ message = 'Произошла ошибка' }: ErrorStateProps) => {
   return (
-    <Box {...errorContainerStyles}>
-      <Text {...errorTextStyles}>{message}</Text>
+    <Box sx={errorContainerStyles}>
+      <Text sx={errorTextStyles}>{message}</Text>
     </Box>
   )
 }

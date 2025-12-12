@@ -21,10 +21,14 @@ import {
   buttonStyles,
   cardStyles,
   containerStyles,
+  headingSize,
   headingStyles,
+  inputFocusBorderColor,
   inputStyles,
-  loginFieldsVStackStyles,
-  loginFormVStackStyles,
+  loginFieldsVStackAlign,
+  loginFieldsVStackSpacing,
+  loginFormVStackAlign,
+  loginFormVStackSpacing,
   textLabelStyles,
   titleHeadingStyles,
 } from './Login.styles'
@@ -68,35 +72,41 @@ function Login() {
   }
 
   return (
-    <Box {...containerStyles}>
-      <Heading {...titleHeadingStyles}>The Last of Guss</Heading>
-      <Box {...cardStyles}>
-        <VStack {...loginFormVStackStyles}>
-          <Heading {...headingStyles}>ВОЙТИ</Heading>
+    <Box sx={containerStyles}>
+      <Heading as="h1" sx={titleHeadingStyles}>
+        The Last of Guss
+      </Heading>
+      <Box sx={cardStyles}>
+        <VStack spacing={loginFormVStackSpacing} align={loginFormVStackAlign}>
+          <Heading as="h1" size={headingSize} sx={headingStyles}>
+            ВОЙТИ
+          </Heading>
 
           <form onSubmit={handleSubmit}>
-            <VStack {...loginFieldsVStackStyles}>
+            <VStack spacing={loginFieldsVStackSpacing} align={loginFieldsVStackAlign}>
               <FormControl isInvalid={!!error && !username.trim()}>
-                <Text {...textLabelStyles}>Имя пользователя</Text>
+                <Text sx={textLabelStyles}>Имя пользователя</Text>
                 <Input
                   type="text"
                   value={username}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
                   placeholder="Введите имя пользователя"
                   disabled={loginMutation.isPending}
-                  {...inputStyles}
+                  focusBorderColor={inputFocusBorderColor}
+                  sx={inputStyles}
                 />
               </FormControl>
 
               <FormControl isInvalid={!!error && !password.trim()}>
-                <Text {...textLabelStyles}>Пароль</Text>
+                <Text sx={textLabelStyles}>Пароль</Text>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   placeholder="Введите пароль"
                   disabled={loginMutation.isPending}
-                  {...inputStyles}
+                  focusBorderColor={inputFocusBorderColor}
+                  sx={inputStyles}
                 />
               </FormControl>
 
@@ -108,7 +118,9 @@ function Login() {
 
               <Button
                 type="submit"
-                {...buttonStyles}
+                colorScheme={buttonStyles.colorScheme}
+                size={buttonStyles.size}
+                sx={{ width: buttonStyles.width }}
                 isLoading={loginMutation.isPending}
                 loadingText="Вход..."
               >

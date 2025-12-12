@@ -1,5 +1,7 @@
 import axios, { AxiosError } from 'axios'
 
+import { authApi } from './auth'
+
 const getBaseURL = () => {
   if (import.meta.env.MODE === 'development') {
     return '/api/v1'
@@ -23,7 +25,7 @@ export const apiClient = axios.create({
 })
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = authApi.getToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -34,7 +36,10 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<{ message: string }>) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
+      authApi.removeToken()
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   },

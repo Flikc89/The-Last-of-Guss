@@ -6,10 +6,8 @@ export const roundCardStyles: SystemStyleObject = {
   borderWidth: '1px',
 }
 
-export const roundCardBodyStyles: SystemStyleObject = {
-  align: 'stretch',
-  spacing: 3,
-}
+export const roundCardBodyAlign = 'stretch'
+export const roundCardBodySpacing = 3
 
 export const roundCardRowStyles: SystemStyleObject = {
   align: 'center',

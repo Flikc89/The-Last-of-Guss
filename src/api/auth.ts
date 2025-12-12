@@ -7,7 +7,7 @@ export const authApi = {
   login: async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post<LoginResponse>('/auth/login', data)
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token)
+      authApi.setToken(response.data.token)
     }
     return response.data
   },
@@ -19,14 +19,20 @@ export const authApi = {
     try {
       await apiClient.post('/auth/logout')
     } finally {
-      localStorage.removeItem('token')
+      authApi.removeToken()
     }
   },
   getToken: (): string | null => {
     return localStorage.getItem('token')
   },
+  removeToken: (): void => {
+    localStorage.removeItem('token')
+  },
+  setToken: (token: string): void => {
+    localStorage.setItem('token', token)
+  },
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem('token')
+    return !!authApi.getToken()
   },
 }
 

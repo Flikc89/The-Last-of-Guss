@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Box, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,15 +10,19 @@ import { Goose } from '@/components/Goose'
 import { Header } from '@/components/Header'
 import { LoadingState } from '@/components/LoadingState'
 import { RoundInfo } from '@/components/RoundInfo'
+import { Timer } from '@/components/Timer'
 import { useBatchTaps } from '@/hooks/useBatchTaps'
 import { useRoundTimer } from '@/hooks/useRoundTimer'
 import { useUserSync } from '@/hooks/useUserSync'
-import { getCooldownStatus, getHeaderStatusText } from '@/utils/roundFormat'
+import { useStore } from '@/store'
+import { getHeaderStatusTextByStatus } from '@/utils/roundFormat'
+import type { RoundStatus } from '@/utils/roundUtils'
 import { getRoundStatus } from '@/utils/roundUtils'
 
 import {
   roundContentStyles,
-  roundContentVStackStyles,
+  roundContentVStackAlign,
+  roundContentVStackSpacing,
   roundPageContainerStyles,
 } from './Round.styles'
 
@@ -26,9 +30,9 @@ function Round() {
   const { id } = useParams<{ id: string }>()
   const user = useUserSync()
   const queryClient = useQueryClient()
-  const [currentStatus, setCurrentStatus] = useState<'pending' | 'active' | 'completed'>('pending')
-
-  const isActive = currentStatus === 'active'
+  const getRoundStats = useStore((state) => state.getRoundStats)
+  const clearRoundStats = useStore((state) => state.clearRoundStats)
+  const [currentStatus, setCurrentStatus] = useState<RoundStatus>('pending')
 
   const { data: roundData, isLoading, error } = useRound(id || '', currentStatus)
 
@@ -37,31 +41,54 @@ function Round() {
     canTap: true,
   })
 
+  const onRoundEnd = async () => {
+    if (id) {
+      queryClient.invalidateQueries({ queryKey: ['round', id] })
+      clearRoundStats(id)
+    }
+  }
+
+  const onStatusChange = (status: RoundStatus) => {
+    setCurrentStatus(status)
+  }
+
   const { timeLeft, canTap } = useRoundTimer({
     round: roundData?.round,
-    onStatusChange: setCurrentStatus,
-    onRoundEnd: async () => {
-      if (id) {
-        queryClient.invalidateQueries({ queryKey: ['round', id] })
-      }
-    },
+    onStatusChange,
+    onRoundEnd,
   })
 
   useEffect(() => {
-    if (roundData?.round && currentStatus === 'pending') {
-      const initialStatus = getRoundStatus(roundData.round)
-      setCurrentStatus(initialStatus)
+    if (roundData?.round) {
+      const calculatedStatus = getRoundStatus(roundData.round)
+      setCurrentStatus(calculatedStatus)
     }
-  }, [roundData?.round, currentStatus])
+  }, [roundData?.round])
 
   useEffect(() => {
     if (roundData?.myStats && roundData.round) {
       const status = getRoundStatus(roundData.round)
-      if (status === 'active' || status === 'pending') {
-        batchTaps.initializeScore(roundData.myStats.score, roundData.myStats.taps || 0)
+      if (status === 'completed') {
+        clearRoundStats(roundData.round.id)
+      } else if (status === 'active' || status === 'pending') {
+        const storedStats = getRoundStats(roundData.round.id)
+        if (storedStats) {
+          batchTaps.initializeScore(storedStats.score, storedStats.taps)
+        } else {
+          batchTaps.initializeScore(roundData.myStats.score, roundData.myStats.taps || 0)
+        }
       }
     }
-  }, [roundData?.myStats, roundData?.round, batchTaps])
+  }, [roundData?.myStats, roundData?.round, batchTaps, getRoundStats, clearRoundStats])
+
+  const headerTitle = useMemo(() => {
+    return getHeaderStatusTextByStatus(currentStatus)
+  }, [currentStatus])
+
+  const memoizedHeader = useMemo(
+    () => <Header title={headerTitle} user={user} showBackButton={true} />,
+    [headerTitle, user],
+  )
 
   if (isLoading) {
     return <LoadingState message="Загрузка..." />
@@ -71,32 +98,24 @@ function Round() {
     return <ErrorState message="Ошибка загрузки раунда" />
   }
 
-  const round = roundData.round
-  const status = currentStatus
-
-  const displayScore = status === 'active' ? batchTaps.localScore : roundData.myStats.score
-  const localTaps = status === 'active' ? batchTaps.localTaps : undefined
-
-  const getHeaderTitle = () => {
-    if (status === 'completed') {
-      return getCooldownStatus(round) ? 'Cooldown' : 'Раунд завершен'
-    }
-    return getHeaderStatusText(round)
-  }
-
-  const headerTitle = getHeaderTitle()
+  const isActive = currentStatus === 'active'
+  const displayScore = isActive ? batchTaps.localScore : (roundData.myStats?.score ?? 0)
+  const localTaps = isActive ? batchTaps.localTaps : undefined
 
   return (
-    <Box {...roundPageContainerStyles}>
-      <Header title={headerTitle} user={user} showBackButton={true} />
+    <Box sx={roundPageContainerStyles}>
+      {memoizedHeader}
 
-      <Box {...roundContentStyles}>
-        <VStack {...roundContentVStackStyles}>
+      <Box sx={roundContentStyles}>
+        <VStack spacing={roundContentVStackSpacing} align={roundContentVStackAlign}>
           <Goose onClick={batchTaps.handleTap} isActive={isActive} canTap={canTap} />
 
+          {(currentStatus === 'active' || currentStatus === 'pending') && (
+            <Timer timeLeft={timeLeft} />
+          )}
+
           <RoundInfo
-            status={status}
-            timeLeft={timeLeft}
+            status={currentStatus}
             displayScore={displayScore}
             localTaps={localTaps}
             roundData={roundData}

@@ -1,12 +1,17 @@
 import type { SystemStyleObject } from '@chakra-ui/react'
 
-export const gooseContainerStyles = (isActive: boolean, canTap: boolean): SystemStyleObject => ({
+export const gooseContainerStyles = (
+  isActive: boolean,
+  canTap: boolean,
+  isPressed: boolean,
+): SystemStyleObject => ({
   cursor: isActive && canTap ? 'pointer' : 'not-allowed',
   opacity: isActive && canTap ? 1 : 0.5,
-  transition: 'all 0.2s',
+  transition: 'transform 0.05s ease-out',
   userSelect: 'none',
+  transform: isPressed ? 'scale(0.9)' : 'scale(1)',
   _hover:
-    isActive && canTap
+    isActive && canTap && !isPressed
       ? {
           transform: 'scale(1.05)',
         }

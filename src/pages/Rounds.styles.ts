@@ -13,14 +13,12 @@ export const createRoundButtonContainerStyles: SystemStyleObject = {
   mb: 4,
 }
 
-export const createRoundButtonStyles: SystemStyleObject = {
+export const createRoundButtonStyles = {
   colorScheme: 'brand',
 }
 
-export const roundsListContainerStyles: SystemStyleObject = {
-  spacing: 4,
-  align: 'stretch',
-}
+export const roundsListContainerSpacing = 4
+export const roundsListContainerAlign = 'stretch'
 
 export const emptyRoundsCardStyles: SystemStyleObject = {
   bg: 'gray.800',

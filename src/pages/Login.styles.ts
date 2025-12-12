@@ -23,14 +23,15 @@ export const cardStyles: SystemStyleObject = {
 }
 
 export const headingStyles: SystemStyleObject = {
-  as: 'h1',
-  size: 'xl',
   textAlign: 'center',
   color: 'white',
 }
 
+export const headingSize = 'xl'
+
+export const inputFocusBorderColor = 'brand.500'
+
 export const inputStyles: SystemStyleObject = {
-  focusBorderColor: 'brand.500',
   _hover: {
     borderColor: 'brand.400',
     boxShadow: '0 0 0 1px var(--chakra-colors-brand-400)',
@@ -40,7 +41,7 @@ export const inputStyles: SystemStyleObject = {
   },
 }
 
-export const buttonStyles: SystemStyleObject = {
+export const buttonStyles = {
   colorScheme: 'brand',
   size: 'lg',
   width: '100%',
@@ -50,18 +51,13 @@ export const textLabelStyles: SystemStyleObject = {
   mb: 2,
 }
 
-export const loginFormVStackStyles: SystemStyleObject = {
-  spacing: 6,
-  align: 'stretch',
-}
+export const loginFormVStackSpacing = 6
+export const loginFormVStackAlign = 'stretch'
 
-export const loginFieldsVStackStyles: SystemStyleObject = {
-  spacing: 4,
-  align: 'stretch',
-}
+export const loginFieldsVStackSpacing = 4
+export const loginFieldsVStackAlign = 'stretch'
 
 export const titleHeadingStyles: SystemStyleObject = {
-  as: 'h1',
   fontSize: '4xl',
   fontWeight: 'bold',
   textAlign: 'center',

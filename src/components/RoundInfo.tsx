@@ -1,65 +1,46 @@
 import { Text, VStack } from '@chakra-ui/react'
 
 import type { RoundDetailsResponse } from '@/api/types'
+import { getInfoStatusText } from '@/utils/roundFormat'
+import type { RoundStatus } from '@/utils/roundUtils'
 
 import {
-  roundInfoCompletedContainerStyles,
-  roundInfoContainerStyles,
+  roundInfoCompletedContainerAlign,
+  roundInfoCompletedContainerSpacing,
+  roundInfoContainerAlign,
+  roundInfoContainerSpacing,
   roundInfoScoreStyles,
-  roundInfoTimeLeftStyles,
   roundInfoTitleStyles,
   roundInfoWinnerStyles,
 } from './RoundInfo.styles'
+import { ScoreDisplay } from './ScoreDisplay'
 
 interface RoundInfoProps {
-  status: 'pending' | 'active' | 'completed'
-  timeLeft: string
+  status: RoundStatus
   displayScore: number
   localTaps?: number
   roundData: RoundDetailsResponse
 }
 
-const getStatusText = (status: 'pending' | 'active' | 'completed'): string => {
-  if (status === 'active') {
-    return 'Раунд активен!'
-  }
-  if (status === 'pending') {
-    return 'Раунд еще не начат'
-  }
-  return 'Раунд завершен'
-}
-
-export const RoundInfo = ({
-  status,
-  timeLeft,
-  displayScore,
-  localTaps,
-  roundData,
-}: RoundInfoProps) => {
+export const RoundInfo = ({ status, displayScore, localTaps, roundData }: RoundInfoProps) => {
   return (
-    <VStack {...roundInfoContainerStyles}>
-      <Text {...roundInfoTitleStyles}>{getStatusText(status)}</Text>
-      {(status === 'active' || status === 'pending') && (
-        <Text {...roundInfoTimeLeftStyles}>До конца осталось: {timeLeft}</Text>
-      )}
+    <VStack spacing={roundInfoContainerSpacing} align={roundInfoContainerAlign}>
+      <Text sx={roundInfoTitleStyles}>{getInfoStatusText(status)}</Text>
       {status === 'completed' && (
-        <VStack {...roundInfoCompletedContainerStyles}>
-          <Text {...roundInfoScoreStyles}>Всего {roundData.round.totalScore}</Text>
+        <VStack
+          spacing={roundInfoCompletedContainerSpacing}
+          align={roundInfoCompletedContainerAlign}
+        >
+          <Text sx={roundInfoScoreStyles}>Всего {roundData.round.totalScore}</Text>
           {roundData.topStats && roundData.topStats.length > 0 && (
-            <Text {...roundInfoWinnerStyles}>
+            <Text sx={roundInfoWinnerStyles}>
               Победитель - {roundData.topStats[0].user.username} {roundData.topStats[0].score}
             </Text>
           )}
-          <Text {...roundInfoScoreStyles}>Мои очки {roundData.myStats.score}</Text>
-          <Text {...roundInfoScoreStyles}>Кликов {roundData.myStats.taps}</Text>
+          <ScoreDisplay score={roundData.myStats.score} taps={roundData.myStats.taps} />
         </VStack>
       )}
-      {status !== 'completed' && (
-        <>
-          <Text {...roundInfoScoreStyles}>Мои очки - {displayScore}</Text>
-          {localTaps !== undefined && <Text {...roundInfoScoreStyles}>Кликов - {localTaps}</Text>}
-        </>
-      )}
+      {status !== 'completed' && <ScoreDisplay score={displayScore} taps={localTaps} />}
     </VStack>
   )
 }

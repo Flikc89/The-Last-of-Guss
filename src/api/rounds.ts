@@ -1,5 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 
+import { useStore } from '@/store'
+
+import { authApi } from './auth'
 import { apiClient } from './client'
 import type {
   Round,
@@ -29,15 +32,24 @@ export const roundsApi = {
 }
 
 export const useRounds = (params?: RoundsQueryParams, enabled: boolean = true) => {
+  const getRoundsList = useStore((state) => state.getRoundsList)
+  const setRoundsList = useStore((state) => state.setRoundsList)
+  const storedRounds = getRoundsList()
+
   return useQuery({
     queryKey: ['rounds', params],
-    queryFn: () => roundsApi.getRounds(params),
+    queryFn: async () => {
+      const data = await roundsApi.getRounds(params)
+      setRoundsList(data)
+      return data
+    },
+    ...(storedRounds && { placeholderData: storedRounds }),
     refetchInterval: enabled ? 5000 : false,
     refetchOnMount: true,
     staleTime: 0,
     gcTime: 0,
     structuralSharing: false,
-    enabled,
+    enabled: enabled && authApi.isAuthenticated(),
   })
 }
 
@@ -55,7 +67,7 @@ export const useRound = (roundId: string, status?: 'pending' | 'active' | 'compl
     queryFn: () => roundsApi.getRound(roundId),
     refetchInterval: getRefetchInterval(),
     refetchOnMount: status === 'completed' ? 'always' : true,
-    enabled: !!roundId,
+    enabled: !!roundId && authApi.isAuthenticated(),
   })
 }
 

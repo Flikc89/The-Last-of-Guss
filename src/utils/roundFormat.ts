@@ -1,46 +1,48 @@
-import dayjs from 'dayjs'
-
 import type { Round } from '@/api/types'
 
+import type { RoundStatus } from './roundUtils'
 import { getRoundStatus } from './roundUtils'
 
-export const getHeaderStatusText = (round: Round | undefined): string => {
-  if (!round) return 'Загрузка...'
-  const status = getRoundStatus(round)
-  const statusMap: Record<string, string> = {
-    pending: 'Раунд не начат',
-    active: 'Раунд активен',
-    completed: 'Раунд завершен',
-  }
-  return statusMap[status] || 'Неизвестно'
+const UNKNOWN_STATUS_TEXT = 'Неизвестно'
+
+const HEADER_STATUS_MAP: Record<RoundStatus, string> = {
+  pending: 'Раунд не начат',
+  active: 'Раунд активен',
+  completed: 'Раунд завершен',
 }
 
-export const getCooldownStatus = (round: Round | undefined): boolean => {
-  if (!round) return false
-  const status = getRoundStatus(round)
-  if (status !== 'completed') return false
-  const now = dayjs()
-  const endTime = dayjs(round.endTime)
-  const cooldownEnd = endTime.add(30, 'second')
-  return now.isBefore(cooldownEnd)
+const CARD_STATUS_MAP: Record<RoundStatus, string> = {
+  pending: 'Запланирован',
+  active: 'Активен',
+  completed: 'Завершен',
+}
+
+const INFO_STATUS_MAP: Record<RoundStatus, string> = {
+  pending: 'Раунд еще не начат',
+  active: 'Раунд активен!',
+  completed: 'Раунд завершен',
+}
+
+const STATUS_COLOR_MAP: Record<RoundStatus, string> = {
+  pending: 'yellow',
+  active: 'green',
+  completed: 'gray',
+}
+
+export const getHeaderStatusTextByStatus = (status: RoundStatus): string => {
+  return HEADER_STATUS_MAP[status] || UNKNOWN_STATUS_TEXT
+}
+
+export const getInfoStatusText = (status: RoundStatus): string => {
+  return INFO_STATUS_MAP[status] || UNKNOWN_STATUS_TEXT
 }
 
 export const getRoundStatusText = (round: Round): string => {
   const status = getRoundStatus(round)
-  const statusMap: Record<string, string> = {
-    pending: 'Запланирован',
-    active: 'Активен',
-    completed: 'Завершен',
-  }
-  return statusMap[status] || 'Неизвестно'
+  return CARD_STATUS_MAP[status] || UNKNOWN_STATUS_TEXT
 }
 
 export const getRoundStatusColor = (round: Round): string => {
   const status = getRoundStatus(round)
-  const colorMap: Record<string, string> = {
-    pending: 'yellow',
-    active: 'green',
-    completed: 'gray',
-  }
-  return colorMap[status] || 'gray'
+  return STATUS_COLOR_MAP[status] || 'gray'
 }

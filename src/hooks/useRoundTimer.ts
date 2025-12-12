@@ -1,72 +1,86 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 import dayjs from 'dayjs'
 
 import type { Round } from '@/api/types'
+import type { RoundStatus } from '@/utils/roundUtils'
 import { getRoundStatus } from '@/utils/roundUtils'
+
+const DEFAULT_TIME = '00:00'
 
 interface UseRoundTimerOptions {
   round: Round | undefined
-  onStatusChange?: (status: 'pending' | 'active' | 'completed') => void
+  onStatusChange?: (status: RoundStatus) => void
   onRoundEnd?: () => void
 }
 
+const formatTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
 export const useRoundTimer = ({ round, onStatusChange, onRoundEnd }: UseRoundTimerOptions) => {
-  const [timeLeft, setTimeLeft] = useState<string>('00:00')
+  const [timeLeft, setTimeLeft] = useState<string>(DEFAULT_TIME)
   const [canTap, setCanTap] = useState(false)
-  const [secondsLeft, setSecondsLeft] = useState<number | undefined>(undefined)
-  const [hasCalledOnRoundEnd, setHasCalledOnRoundEnd] = useState(false)
+  const hasCalledOnRoundEndRef = useRef(false)
+  const lastStatusRef = useRef<RoundStatus | null>(null)
+  const onStatusChangeRef = useRef(onStatusChange)
+  const onRoundEndRef = useRef(onRoundEnd)
 
   useEffect(() => {
-    if (!round) return
+    onStatusChangeRef.current = onStatusChange
+    onRoundEndRef.current = onRoundEnd
+  }, [onStatusChange, onRoundEnd])
+
+  useEffect(() => {
+    const resetTimer = () => {
+      setTimeLeft(DEFAULT_TIME)
+      setCanTap(false)
+    }
+
+    const callOnRoundEndOnce = () => {
+      if (!hasCalledOnRoundEndRef.current) {
+        onRoundEndRef.current?.()
+        hasCalledOnRoundEndRef.current = true
+      }
+    }
+
+    const updateTimeFromDiff = (diff: number, canTapValue: boolean) => {
+      setTimeLeft(diff > 0 ? formatTime(diff) : DEFAULT_TIME)
+      setCanTap(canTapValue)
+    }
+
+    if (!round) {
+      resetTimer()
+      hasCalledOnRoundEndRef.current = false
+      lastStatusRef.current = null
+      return
+    }
 
     const updateTimer = () => {
       const now = dayjs()
-      const endTime = dayjs(round.endTime)
-      const startTime = dayjs(round.startTime)
       const status = getRoundStatus(round)
 
-      onStatusChange?.(status)
+      if (lastStatusRef.current !== status) {
+        lastStatusRef.current = status
+        onStatusChangeRef.current?.(status)
+        hasCalledOnRoundEndRef.current = false
+      }
 
       if (status === 'active') {
-        const diff = endTime.diff(now, 'second')
-        if (diff > 0) {
-          const minutes = Math.floor(diff / 60)
-          const seconds = diff % 60
-          setTimeLeft(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`)
-          setSecondsLeft(diff)
-          setCanTap(true)
-          setHasCalledOnRoundEnd(false)
-        } else {
-          setTimeLeft('00:00')
-          setSecondsLeft(0)
-          setCanTap(false)
-          if (!hasCalledOnRoundEnd) {
-            onRoundEnd?.()
-            setHasCalledOnRoundEnd(true)
-          }
+        const diff = dayjs(round.endTime).diff(now, 'second')
+        updateTimeFromDiff(diff, diff > 0)
+
+        if (diff <= 0) {
+          callOnRoundEndOnce()
         }
       } else if (status === 'pending') {
-        const diff = startTime.diff(now, 'second')
-        if (diff > 0) {
-          const minutes = Math.floor(diff / 60)
-          const seconds = diff % 60
-          setTimeLeft(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`)
-          setSecondsLeft(undefined)
-          setCanTap(false)
-        } else {
-          setTimeLeft('00:00')
-          setSecondsLeft(undefined)
-        }
-        setHasCalledOnRoundEnd(false)
+        const diff = dayjs(round.startTime).diff(now, 'second')
+        updateTimeFromDiff(diff, false)
       } else {
-        setTimeLeft('00:00')
-        setSecondsLeft(undefined)
-        setCanTap(false)
-        if (!hasCalledOnRoundEnd) {
-          onRoundEnd?.()
-          setHasCalledOnRoundEnd(true)
-        }
+        resetTimer()
+        callOnRoundEndOnce()
       }
     }
 
@@ -74,7 +88,7 @@ export const useRoundTimer = ({ round, onStatusChange, onRoundEnd }: UseRoundTim
     const interval = setInterval(updateTimer, 1000)
 
     return () => clearInterval(interval)
-  }, [round, onStatusChange, onRoundEnd, hasCalledOnRoundEnd])
+  }, [round])
 
-  return { timeLeft, canTap, secondsLeft }
+  return { timeLeft, canTap }
 }

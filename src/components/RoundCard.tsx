@@ -3,10 +3,12 @@ import dayjs from 'dayjs'
 import { Link as RouterLink } from 'react-router-dom'
 
 import type { Round } from '@/api/types'
+import { DATE_TIME_FORMAT } from '@/config/constants'
 import { getRoundStatusColor, getRoundStatusText } from '@/utils/roundFormat'
 
 import {
-  roundCardBodyStyles,
+  roundCardBodyAlign,
+  roundCardBodySpacing,
   roundCardDividerStyles,
   roundCardFooterTextStyles,
   roundCardLabelStyles,
@@ -22,32 +24,28 @@ interface RoundCardProps {
 
 export const RoundCard = ({ round }: RoundCardProps) => {
   return (
-    <Card key={round.id} {...roundCardStyles}>
+    <Card key={round.id} sx={roundCardStyles}>
       <CardBody>
-        <VStack {...roundCardBodyStyles}>
-          <Flex {...roundCardRowStyles}>
-            <Text {...roundCardLabelStyles}>Round ID:</Text>
-            <Box as={RouterLink} to={`/rounds/${round.id}`} {...roundCardLinkStyles}>
+        <VStack spacing={roundCardBodySpacing} align={roundCardBodyAlign}>
+          <Flex sx={roundCardRowStyles}>
+            <Text sx={roundCardLabelStyles}>Round ID:</Text>
+            <Box as={RouterLink} to={`/rounds/${round.id}`} sx={roundCardLinkStyles}>
               {round.id}
             </Box>
           </Flex>
-          <Flex {...roundCardRowStyles}>
-            <Text {...roundCardLabelStyles}>Start:</Text>
-            <Text {...roundCardTextStyles}>
-              {dayjs(round.startTime).format('DD.MM.YYYY HH:mm:ss')}
-            </Text>
+          <Flex sx={roundCardRowStyles}>
+            <Text sx={roundCardLabelStyles}>Start:</Text>
+            <Text sx={roundCardTextStyles}>{dayjs(round.startTime).format(DATE_TIME_FORMAT)}</Text>
           </Flex>
-          <Flex {...roundCardRowStyles}>
-            <Text {...roundCardLabelStyles}>End:</Text>
-            <Text {...roundCardTextStyles}>
-              {dayjs(round.endTime).format('DD.MM.YYYY HH:mm:ss')}
-            </Text>
+          <Flex sx={roundCardRowStyles}>
+            <Text sx={roundCardLabelStyles}>End:</Text>
+            <Text sx={roundCardTextStyles}>{dayjs(round.endTime).format(DATE_TIME_FORMAT)}</Text>
           </Flex>
         </VStack>
       </CardBody>
-      <Divider {...roundCardDividerStyles} />
+      <Divider sx={roundCardDividerStyles} />
       <CardFooter>
-        <Text {...roundCardFooterTextStyles(getRoundStatusColor(round))}>
+        <Text sx={roundCardFooterTextStyles(getRoundStatusColor(round))}>
           Статус: {getRoundStatusText(round)}
         </Text>
       </CardFooter>

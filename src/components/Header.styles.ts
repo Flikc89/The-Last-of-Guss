@@ -6,7 +6,6 @@ export const headerStyles: SystemStyleObject = {
 }
 
 export const headerContainerStyles: SystemStyleObject = {
-  as: 'header',
   p: 4,
   borderBottom: '1px',
   borderColor: 'gray.700',
@@ -17,11 +16,12 @@ export const headerSpacerStyles: SystemStyleObject = {
 }
 
 export const headerTitleStyles: SystemStyleObject = {
-  size: 'lg',
   flex: 1,
   textAlign: 'center',
   color: 'white',
 }
+
+export const headerTitleSize = 'lg'
 
 export const headerUserContainerStyles: SystemStyleObject = {
   flex: 1,
@@ -34,12 +34,12 @@ export const headerUserTextStyles: SystemStyleObject = {
   color: 'white',
 }
 
-export const headerLogoutButtonStyles: SystemStyleObject = {
+export const headerLogoutButtonStyles = {
   colorScheme: 'brand',
   size: 'sm',
 }
 
-export const headerBackButtonStyles: SystemStyleObject = {
+export const headerBackButtonStyles = {
   colorScheme: 'brand',
   size: 'sm',
 }

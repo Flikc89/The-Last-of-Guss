@@ -12,6 +12,7 @@ import {
   headerLogoutButtonStyles,
   headerSpacerStyles,
   headerStyles,
+  headerTitleSize,
   headerTitleStyles,
   headerUserContainerStyles,
   headerUserTextMarginStyles,
@@ -53,23 +54,30 @@ export const Header = ({
   }
 
   return (
-    <Flex {...headerStyles} {...headerContainerStyles}>
-      <Box {...headerSpacerStyles}>
+    <Flex as="header" sx={{ ...headerStyles, ...headerContainerStyles }}>
+      <Box sx={headerSpacerStyles}>
         {showBackButton && (
-          <Button {...headerBackButtonStyles} onClick={handleBack}>
+          <Button
+            colorScheme={headerBackButtonStyles.colorScheme}
+            size={headerBackButtonStyles.size}
+            onClick={handleBack}
+          >
             Назад
           </Button>
         )}
       </Box>
-      <Heading {...headerTitleStyles}>{title}</Heading>
-      <Box {...headerUserContainerStyles}>
+      <Heading size={headerTitleSize} sx={headerTitleStyles}>
+        {title}
+      </Heading>
+      <Box sx={headerUserContainerStyles}>
         {user && (
           <>
-            <Text {...headerUserTextStyles} {...headerUserTextMarginStyles}>
+            <Text sx={{ ...headerUserTextStyles, ...headerUserTextMarginStyles }}>
               {user.username}
             </Text>
             <Button
-              {...headerLogoutButtonStyles}
+              colorScheme={headerLogoutButtonStyles.colorScheme}
+              size={headerLogoutButtonStyles.size}
               onClick={handleLogout}
               isLoading={logoutMutation.isPending}
             >

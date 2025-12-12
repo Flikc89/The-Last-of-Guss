@@ -15,7 +15,8 @@ import {
   createRoundButtonStyles,
   emptyRoundsCardStyles,
   emptyRoundsTextStyles,
-  roundsListContainerStyles,
+  roundsListContainerAlign,
+  roundsListContainerSpacing,
   roundsListStyles,
   roundsPageContainerStyles,
 } from './Rounds.styles'
@@ -45,14 +46,14 @@ function Rounds() {
   }
 
   return (
-    <Box {...roundsPageContainerStyles}>
+    <Box sx={roundsPageContainerStyles}>
       <Header title="Список РАУНДОВ" user={user} />
 
-      <Box {...roundsListStyles}>
+      <Box sx={roundsListStyles}>
         {user?.role === ADMIN_ROLE && (
-          <Box {...createRoundButtonContainerStyles}>
+          <Box sx={createRoundButtonContainerStyles}>
             <Button
-              {...createRoundButtonStyles}
+              colorScheme={createRoundButtonStyles.colorScheme}
               onClick={handleCreateRound}
               isLoading={createRoundMutation.isPending}
             >
@@ -60,13 +61,13 @@ function Rounds() {
             </Button>
           </Box>
         )}
-        <VStack {...roundsListContainerStyles}>
+        <VStack spacing={roundsListContainerSpacing} align={roundsListContainerAlign}>
           {data?.data?.length ? (
             data.data.map((round) => <RoundCard key={round.id} round={round} />)
           ) : (
-            <Card {...emptyRoundsCardStyles}>
+            <Card sx={emptyRoundsCardStyles}>
               <CardBody>
-                <Text {...emptyRoundsTextStyles}>Нет доступных раундов</Text>
+                <Text sx={emptyRoundsTextStyles}>Нет доступных раундов</Text>
               </CardBody>
             </Card>
           )}
